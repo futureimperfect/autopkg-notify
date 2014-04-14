@@ -52,8 +52,10 @@ class AutoPkgNotify:
 
         # Send the message
         mailer = smtplib.SMTP(self.smtp_server, self.smtp_port)
-        mailer.starttls()
-        mailer.login(self.smtp_user, self.smtp_pass)
+        if self.smtp_tls:
+            mailer.starttls()
+        if self.smtp_user:
+            mailer.login(self.smtp_user, self.smtp_pass)
         mailer.sendmail(self.smtp_from, [', '.join(self.smtp_to)], msg.as_string())
         mailer.close()
 
