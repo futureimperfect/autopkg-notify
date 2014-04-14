@@ -70,6 +70,7 @@ class AutoPkgNotify:
                     lines   = output.split('\n')
                     match   = [s for s in lines if 'AppDmgVersioner: Version:' in s]
                     app     = os.path.splitext(recipe)[0]
+                    version = None
                     if match:
                         version = match[0].split(' ')[-1]
 
