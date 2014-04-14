@@ -5,7 +5,8 @@
 #### SMTP CONFIG ####
 SMTP_FROM   = 'you@you.com'
 SMTP_TO     = ['me@me.com', 'you@you.com']
-SMTP_PASS   = 'supersecretpassword' # TODO: Don't use plain text, use `with open()`
+with open('p.txt') as f:
+    SMTP_PASS = f.read().strip()
 SMTP_PORT   = 587
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_USER   = 'you@you.com'
