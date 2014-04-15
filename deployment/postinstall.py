@@ -51,9 +51,9 @@ launch_daemon = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <key>StartCalendarInterval</key>
         <dict>
             <key>Hour</key>
-            <integer>18</integer>
+            <integer>3</integer>
             <key>Minute</key>
-            <integer>10</integer>
+            <integer>0</integer>
         </dict>
     </dict>
 </plist>''' % (get_console_user(), AUTOPKG_NOTIFY_STDOUT_LOG, AUTOPKG_NOTIFY_STDERR_LOG)
