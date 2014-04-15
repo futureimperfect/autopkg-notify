@@ -19,6 +19,7 @@ from __future__ import print_function
 
 import email
 import os
+import re
 import smtplib
 import subprocess
 import sys
@@ -39,8 +40,13 @@ class AutoPkgNotify:
         self.recipes_to_run = recipes_to_run
 
     def send_email(self, app, version):
-        subject = '%s Version %s is Available for Testing' % (app, version)
-        message = 'Version %s of %s is now available for testing.' % (version, app)
+        if version:
+            subject = '%s Version %s is Available for Testing' % (app, version)
+            message = 'Version %s of %s is now available for testing.' % (version, app)
+            print('Version %s of %s was processed. Sending email notification to %s.' % (version, app, self.smtp_to))
+        else:
+            subject = message = 'A new version of %s is available for testing' % app
+            print('A new version of %s was processed. Sending email notification to %s.' % (app, self.smtp_to))
 
         # Construct the message
         msg = email.MIMEMultipart.MIMEMultipart()
@@ -52,29 +58,46 @@ class AutoPkgNotify:
 
         # Send the message
         mailer = smtplib.SMTP(self.smtp_server, self.smtp_port)
+
         if self.smtp_tls:
             mailer.starttls()
-        if self.smtp_user:
+
+        if self.smtp_user and self.smtp_pass:
             mailer.login(self.smtp_user, self.smtp_pass)
+
         mailer.sendmail(self.smtp_from, [', '.join(self.smtp_to)], msg.as_string())
         mailer.close()
 
     def run_autopkg(self):
         for recipe in self.recipes_to_run:
             try:
-                output = subprocess.check_output(['/usr/local/bin/autopkg',
+                output  = subprocess.check_output(['/usr/local/bin/autopkg',
                                                   'run',
                                                   '-v',
                                                   recipe])
+
+                app     = os.path.splitext(recipe)[0]
+                lines   = output.split('\n')
+                version = None
+
                 if 'Item at URL is unchanged' in output:
                     print('Nothing new was downloaded. Moving on.')
+
+                elif 'Nothing downloaded, packaged or imported' in output:
+                    print('Nothing changed. Moving on.')
+
+                elif 'The following new items were downloaded' in output:
+                    sparkle_match = [s for s in lines if 'Version retrieved from appcast:' in s]
+                    if sparkle_match:
+                        version = sparkle_match[0].split(' ')[-1]
+
+                    self.send_email(app, version)
+
                 else:
-                    lines   = output.split('\n')
-                    match   = [s for s in lines if 'AppDmgVersioner: Version:' in s]
-                    app     = os.path.splitext(recipe)[0]
-                    version = None
+                    match = [s for s in lines if 'The following ' in s]
                     if match:
-                        version = match[0].split(' ')[-1]
+                        version_line = lines.index(match[0]) + 3
+                        version      = re.split(' +', lines[version_line])[2]
 
                     self.send_email(app, version)
 
@@ -82,5 +105,12 @@ class AutoPkgNotify:
                 print('An error occurred when running the %s recipe. Error: %s' % (recipe, e))
 
 if __name__ == '__main__':
-    apn = AutoPkgNotify(s.SMTP_FROM, s.SMTP_TO, s.SMTP_PASS, s.SMTP_PORT, s.SMTP_SERVER, s.SMTP_USER, s.SMTP_TLS, s.RECIPES_TO_RUN) # TODO: Find a better way
+    apn = AutoPkgNotify(s.SMTP_FROM,
+                        s.SMTP_TO,
+                        s.SMTP_PASS,
+                        s.SMTP_PORT,
+                        s.SMTP_SERVER,
+                        s.SMTP_USER,
+                        s.SMTP_TLS,
+                        s.RECIPES_TO_RUN)
     apn.run_autopkg()
