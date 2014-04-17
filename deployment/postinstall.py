@@ -14,8 +14,6 @@ import sys
 import time
 
 # Constants
-AUTOPKG_NOTIFY_STDOUT_LOG   = '/Library/Logs/autopkg-notify.log'
-AUTOPKG_NOTIFY_STDERR_LOG   = '/Library/Logs/autopkg-notify.log'
 AUTOPKG_NOTIFY_LAUNCHD_PATH = '/Library/LaunchDaemons/com.github.futureimperfect.autopkg-notify.plist'
 
 def get_console_user():
@@ -31,33 +29,6 @@ def get_console_user():
 
     return console_user
 
-launch_daemon = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-
-<plist version="1.0">
-    <dict>
-        <key>Label</key>
-        <string>com.github.futureimperfect.autopkg-notify</string>
-        <key>Program</key>
-        <string>/Library/Application Support/autopkg-notify/autopkg-notify/autopkg_notify.py</string>
-        <key>RunAtLoad</key>
-        <true/>
-        <key>UserName</key>
-        <string>%s</string>
-        <key>StandardOutPath</key>
-        <string>%s</string>
-        <key>StandardErrorPath</key>
-        <string>%s</string>
-        <key>StartCalendarInterval</key>
-        <dict>
-            <key>Hour</key>
-            <integer>3</integer>
-            <key>Minute</key>
-            <integer>0</integer>
-        </dict>
-    </dict>
-</plist>''' % (get_console_user(), AUTOPKG_NOTIFY_STDOUT_LOG, AUTOPKG_NOTIFY_STDERR_LOG)
-
 def is_root():
     '''Returns true if running as the root user.'''
     if os.geteuid() == 0:
@@ -70,11 +41,45 @@ def touch(path):
         os.utime(path, None)
 
 def main():
-    if not os.path.isfile(AUTOPKG_NOTIFY_STDOUT_LOG):
-        touch(AUTOPKG_NOTIFY_STDOUT_LOG)
+    console_user = get_console_user()
+    user_log_dir = os.path.expanduser('~%s' % console_user)
+    autopkg_notify_stdout_log = os.path.join(user_log_dir, 'Library/Logs/autopkg-notify.log')
+    autopkg_notify_stderr_log = os.path.join(user_log_dir, 'Library/Logs/autopkg-notify.log')
+    launch_daemon = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 
-    if not os.path.isfile(AUTOPKG_NOTIFY_STDERR_LOG):
-        touch(AUTOPKG_NOTIFY_STDERR_LOG)
+    <plist version="1.0">
+        <dict>
+            <key>Label</key>
+            <string>com.github.futureimperfect.autopkg-notify</string>
+            <key>Program</key>
+            <string>/Library/Application Support/autopkg-notify/autopkg-notify/autopkg_notify.py</string>
+            <key>RunAtLoad</key>
+            <true/>
+            <key>UserName</key>
+            <string>%s</string>
+            <key>StandardOutPath</key>
+            <string>%s</string>
+            <key>StandardErrorPath</key>
+            <string>%s</string>
+            <key>StartCalendarInterval</key>
+            <dict>
+                <key>Hour</key>
+                <integer>3</integer>
+                <key>Minute</key>
+                <integer>0</integer>
+            </dict>
+        </dict>
+    </plist>''' % (console_user, autopkg_notify_stdout_log, autopkg_notify_stderr_log)
+
+    if not os.path.isdir(user_log_dir):
+        os.makedirs(user_log_dir)
+
+    if not os.path.isfile(autopkg_notify_stdout_log):
+        touch(autopkg_notify_stdout_log)
+
+    if not os.path.isfile(autopkg_notify_stderr_log):
+        touch(autopkg_notify_stderr_log)
 
     f = open(AUTOPKG_NOTIFY_LAUNCHD_PATH, 'w')
     print(launch_daemon, file=f)

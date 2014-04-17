@@ -2,7 +2,7 @@
 
 AutoPkgNotify lets administrators run [AutoPkg][1] recipes on a schedule and notifies them when new versions of software are available. Here's a high-level overview of how it works.
 
-1. A launchDaemon triggers AutoPkgNotify to run on a schedule, (at 3am by default), which then invokes `autopkg`, running the recipes you specify in `settings.py`.
+1. A LaunchDaemon triggers AutoPkgNotify to run on a schedule, (at 3am by default), which then invokes `autopkg`, running the recipes you specify in `settings.py`.
 2. AutoPkgNotify sends an email to adminisitor(s), (configured in `settings.py`), when new versions of software are available for testing.
 3. The Administator tests the software prior to making available to her end users.
 4. If the administrator deems the software worthy of deploying to her end users, she does so.
