@@ -15,6 +15,8 @@ import time
 
 # Constants
 AUTOPKG_NOTIFY_LAUNCHD_PATH = '/Library/LaunchDaemons/com.github.futureimperfect.autopkg-notify.plist'
+AUTOPKG_NOTIFY_STDOUT_LOG   = '/Users/Shared/autopkg-notify.log'
+AUTOPKG_NOTIFY_STDERR_LOG   = '/Users/Shared/autopkg-notify.log'
 
 def get_console_user():
     '''Returns the currently logged-in user as
@@ -42,9 +44,6 @@ def touch(path):
 
 def main():
     console_user = get_console_user()
-    user_log_dir = os.path.expanduser('~%s' % console_user)
-    autopkg_notify_stdout_log = os.path.join(user_log_dir, 'Library/Logs/autopkg-notify.log')
-    autopkg_notify_stderr_log = os.path.join(user_log_dir, 'Library/Logs/autopkg-notify.log')
     launch_daemon = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 
@@ -70,16 +69,7 @@ def main():
                 <integer>0</integer>
             </dict>
         </dict>
-    </plist>''' % (console_user, autopkg_notify_stdout_log, autopkg_notify_stderr_log)
-
-    if not os.path.isdir(user_log_dir):
-        os.makedirs(user_log_dir)
-
-    if not os.path.isfile(autopkg_notify_stdout_log):
-        touch(autopkg_notify_stdout_log)
-
-    if not os.path.isfile(autopkg_notify_stderr_log):
-        touch(autopkg_notify_stderr_log)
+    </plist>''' % (console_user, AUTOPKG_NOTIFY_STDOUT_LOG, AUTOPKG_NOTIFY_STDERR_LOG)
 
     f = open(AUTOPKG_NOTIFY_LAUNCHD_PATH, 'w')
     print(launch_daemon, file=f)
