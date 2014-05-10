@@ -20,29 +20,29 @@ from __future__ import print_function
 import email
 import logging
 import os
-import re
+import plistlib
 import smtplib
 import subprocess
-import sys
 
 import settings as s
+
 
 class AutoPkgNotify(object):
     '''Runs AutoPkg and sends email notifications
     when new versions of software are available.'''
-    def __init__(self, smtp_from, smtp_to, smtp_pass, smtp_port, smtp_server, smtp_user, smtp_tls, recipes_to_run):
-        self.smtp_from      = smtp_from
-        self.smtp_to        = smtp_to
-        self.smtp_pass      = smtp_pass
-        self.smtp_port      = smtp_port
-        self.smtp_server    = smtp_server
-        self.smtp_user      = smtp_user
-        self.smtp_tls       = smtp_tls
-        self.recipes_to_run = recipes_to_run
+    def __init__(self, smtp_from, smtp_to, smtp_pass, smtp_port, smtp_server, smtp_user, smtp_tls, recipe_list):
+        self.smtp_from = smtp_from
+        self.smtp_to = smtp_to
+        self.smtp_pass = smtp_pass
+        self.smtp_port = smtp_port
+        self.smtp_server = smtp_server
+        self.smtp_user = smtp_user
+        self.smtp_tls = smtp_tls
+        self.recipe_list = recipe_list
 
     def logger(self, msg):
         '''Logger for AutoPkgNotify.'''
-        log_dir  = s.LOG_DIR
+        log_dir = s.LOG_DIR
         log_file = s.LOG_FILE
 
         if not os.path.exists(log_dir):
@@ -55,15 +55,19 @@ class AutoPkgNotify(object):
         logging.getLogger('AutoPkgNotify')
         logging.info(msg)
 
-    def send_email(self, app, version):
-        '''Sends an email notification when new versions of software are built with AutoPkg.'''
-        if version:
-            subject = '%s Version %s is Available for Testing' % (app, version)
-            message = 'Version %s of %s is now available for testing.' % (version, app)
-            self.logger('Version %s of %s was processed. Sending email notification to %s.' % (version, app, self.smtp_to))
-        else:
-            subject = message = 'A new version of %s is available for testing' % app
-            self.logger('A new version of %s was processed. Sending email notification to %s.' % (app, self.smtp_to))
+    def send_email(self, new_downloads_array):
+        '''
+        Sends an email notification containing the names and
+        versions of software built with AutoPkg.
+        '''
+        apps = []
+        for download in new_downloads_array:
+            app = download.get('app')
+            apps.append(app)
+
+        subject = '[AutoPkgNotify] The Following Software is Now Available for Testing (%s)' % ', '.join(apps)
+        message = '''The following software is now available for testing:
+                  \n%s''' % '\n'.join(d['app'] + ': ' + d['version'] for d in new_downloads_array)
 
         # Construct the message
         msg = email.MIMEMultipart.MIMEMultipart()
@@ -86,41 +90,51 @@ class AutoPkgNotify(object):
         mailer.close()
 
     def run_autopkg(self):
-        '''Runs the AutoPkg recipes specified in s.RECIPES_TO_RUN.'''
-        for recipe in self.recipes_to_run:
-            try:
-                output  = subprocess.check_output(['/usr/local/bin/autopkg',
-                                                   'run',
-                                                   '-v',
-                                                   recipe])
+        '''Runs the AutoPkg recipes specified in s.RECIPE_LIST.'''
+        app = None
+        version = None
+        report_cmd = [
+            '/usr/local/bin/autopkg',
+            'run',
+            '--report-plist',
+            '--recipe-list',
+            self.recipe_list
+        ]
 
-                app     = os.path.splitext(recipe)[0]
-                lines   = output.split('\n')
-                version = None
+        # Run AutoPkg
+        report_plist = subprocess.Popen(report_cmd)
+        out, err = report_plist.communicate()
+        if err:
+            self.logger('An error occurred when running AutoPkg. Error: %s' % err)
 
-                if 'Item at URL is unchanged' in output:
-                    self.logger('Nothing new was downloaded when running the %s recipe. Moving on.' % recipe)
+        # Read the report plist
+        report = plistlib.readPlistFromString(report_plist)
+        new_downloads = report['new_downloads']
+        new_packages = report['new_packages']
 
-                elif 'Nothing downloaded, packaged or imported' in output:
-                    self.logger('Nothing changed when running the %s recipe. Moving on.' % recipe)
+        # Send an email notification if there are new downloads
+        if len(new_downloads) > 0:
+            new_downloads_array = []
 
-                elif 'The following new items were downloaded' in output:
-                    sparkle_match = [s for s in lines if 'Version retrieved from appcast:' in s]
-                    if sparkle_match:
-                        version = sparkle_match[0].split(' ')[-1]
+            for path in new_downloads:
+                new_downloads_dict = {}
+                app = path.split('/')[-1].split('.')[0]
+                new_downloads_dict['app'] = app
 
-                    self.send_email(app, version)
+                for dct in new_packages:
+                    if app.lower() in dct.get('pkg_path').lower() and dct.has_key('version'):
+                        version = dct.get('version')
+                        new_downloads_dict['version'] = version
+                    else:
+                        new_downloads_dict['version'] = 'N/A'
 
-                else:
-                    match = [s for s in lines if 'The following ' in s]
-                    if match:
-                        version_line = lines.index(match[0]) + 3
-                        version      = re.split(' +', lines[version_line])[2]
+                new_downloads_array.append(new_downloads_dict)
 
-                    self.send_email(app, version)
+            self.logger('New software was downloaded. Sending an alert to %s.' % self.smtp_to)
+            self.send_email(new_downloads_array)
+        else:
+            self.logger('Nothing new was downloaded.')
 
-            except subprocess.CalledProcessError, e:
-                self.logger('An error occurred when running the %s recipe. Error: %s' % (recipe, e))
 
 if __name__ == '__main__':
     apn = AutoPkgNotify(s.SMTP_FROM,
@@ -130,5 +144,5 @@ if __name__ == '__main__':
                         s.SMTP_SERVER,
                         s.SMTP_USER,
                         s.SMTP_TLS,
-                        s.RECIPES_TO_RUN)
+                        s.RECIPE_LIST)
     apn.run_autopkg()

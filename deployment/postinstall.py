@@ -13,10 +13,12 @@ import subprocess
 import sys
 import time
 
+
 # Constants
 AUTOPKG_NOTIFY_LAUNCHD_PATH = '/Library/LaunchDaemons/com.github.futureimperfect.autopkg-notify.plist'
-AUTOPKG_NOTIFY_STDOUT_LOG   = '/Users/Shared/autopkg-notify.log'
-AUTOPKG_NOTIFY_STDERR_LOG   = '/Users/Shared/autopkg-notify.log'
+AUTOPKG_NOTIFY_STDOUT_LOG = '/Users/Shared/autopkg-notify.log'
+AUTOPKG_NOTIFY_STDERR_LOG = '/Users/Shared/autopkg-notify.log'
+
 
 def get_console_user():
     '''Returns the currently logged-in user as
@@ -31,16 +33,19 @@ def get_console_user():
 
     return console_user
 
+
 def is_root():
     '''Returns true if running as the root user.'''
     if os.geteuid() == 0:
         return True
+
 
 def touch(path):
     '''Mimics the behavior of the `touch`
     command-line utility.'''
     with open(path, 'a'):
         os.utime(path, None)
+
 
 def main():
     console_user = get_console_user()
@@ -78,10 +83,10 @@ def main():
     try:
         subprocess.check_output(['/bin/launchctl',
                                  'load',
-                                 '-w',
                                  '%s' % AUTOPKG_NOTIFY_LAUNCHD_PATH])
     except subprocess.CalledProcessError, e:
         print('Encountered an error when loading %s with launchctl. Error: %s.' % (AUTOPKG_NOTIFY_LAUNCHD_PATH, e))
+
 
 if __name__ == '__main__':
     if not is_root():
