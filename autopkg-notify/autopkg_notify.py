@@ -28,8 +28,10 @@ import settings as s
 
 
 class AutoPkgNotify(object):
-    '''Runs AutoPkg and sends email notifications
-    when new versions of software are available.'''
+    '''
+    Runs AutoPkg and sends email notifications
+    when new versions of software are available.
+    '''
     def __init__(self, smtp_from, smtp_to, smtp_pass, smtp_port, smtp_server, smtp_user, smtp_tls, recipe_list):
         self.smtp_from = smtp_from
         self.smtp_to = smtp_to
@@ -41,7 +43,9 @@ class AutoPkgNotify(object):
         self.recipe_list = recipe_list
 
     def logger(self, msg):
-        '''Logger for AutoPkgNotify.'''
+        '''
+        Logger for AutoPkgNotify.
+        '''
         log_dir = s.LOG_DIR
         log_file = s.LOG_FILE
 
@@ -89,8 +93,20 @@ class AutoPkgNotify(object):
         mailer.sendmail(self.smtp_from, [', '.join(self.smtp_to)], msg.as_string())
         mailer.close()
 
+    def run_cmd(self, cmd, redirect_stdout=None):
+        '''
+        Run a command.
+        '''
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env={'LC_CTYPE': 'en_CA.UTF-8'})
+        out, err = p.communicate()
+        if err:
+            self.logger('An error occurred when running command %s. Error: %s' % (cmd, err))
+        return out
+
     def run_autopkg(self):
-        '''Runs the AutoPkg recipes specified in s.RECIPE_LIST.'''
+        '''
+        Runs the AutoPkg recipes specified in s.RECIPE_LIST.
+        '''
         app = None
         version = None
         report_cmd = [
@@ -102,10 +118,7 @@ class AutoPkgNotify(object):
         ]
 
         # Run AutoPkg
-        report_plist = subprocess.Popen(report_cmd)
-        out, err = report_plist.communicate()
-        if err:
-            self.logger('An error occurred when running AutoPkg. Error: %s' % err)
+        report_plist = self.run_cmd(report_cmd)
 
         # Read the report plist
         report = plistlib.readPlistFromString(report_plist)
