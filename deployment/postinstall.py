@@ -85,7 +85,10 @@ def main():
                                  'load',
                                  '%s' % AUTOPKG_NOTIFY_LAUNCHD_PATH])
     except subprocess.CalledProcessError, e:
-        print('Encountered an error when loading %s with launchctl. Error: %s.' % (AUTOPKG_NOTIFY_LAUNCHD_PATH, e))
+        print(
+            '''Encountered an error when loading %s with launchctl.
+             Error: %s.''' % (AUTOPKG_NOTIFY_LAUNCHD_PATH, e)
+        )
 
 
 if __name__ == '__main__':
