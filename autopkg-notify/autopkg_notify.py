@@ -32,7 +32,17 @@ class AutoPkgNotify(object):
     Runs AutoPkg and sends email notifications
     when new versions of software are available.
     '''
-    def __init__(self, smtp_from, smtp_to, smtp_pass, smtp_port, smtp_server, smtp_user, smtp_tls, recipe_list):
+    def __init__(
+        self,
+        smtp_from,
+        smtp_to,
+        smtp_pass,
+        smtp_port,
+        smtp_server,
+        smtp_user,
+        smtp_tls,
+        recipe_list
+    ):
         self.smtp_from = smtp_from
         self.smtp_to = smtp_to
         self.smtp_pass = smtp_pass
@@ -69,9 +79,10 @@ class AutoPkgNotify(object):
             app = download.get('app')
             apps.append(app)
 
-        subject = '[AutoPkgNotify] The Following Software is Now Available for Testing (%s)' % ', '.join(apps)
-        message = '''The following software is now available for testing:
-                  \n%s''' % '\n'.join(d['app'] + ': ' + d['version'] for d in new_downloads_array)
+        subject = '''[AutoPkgNotify] The Following Software is Now Available
+                   for Testing (%s)''' % ', '.join(apps)
+        message = '''The following software is now available for testing\n:
+                  %s''' % '\n'.join(d['app'] + ': ' + d['version'] for d in new_downloads_array)
 
         # Construct the message
         msg = email.MIMEMultipart.MIMEMultipart()
@@ -90,17 +101,29 @@ class AutoPkgNotify(object):
         if self.smtp_user and self.smtp_pass:
             mailer.login(self.smtp_user, self.smtp_pass)
 
-        mailer.sendmail(self.smtp_from, [', '.join(self.smtp_to)], msg.as_string())
+        mailer.sendmail(
+            self.smtp_from,
+            [', '.join(self.smtp_to)],
+            msg.as_string()
+        )
         mailer.close()
 
     def run_cmd(self, cmd, redirect_stdout=None):
         '''
         Run a command.
         '''
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env={'LC_CTYPE': 'en_CA.UTF-8'})
+        p = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env={'LC_CTYPE': 'en_CA.UTF-8'}
+        )
         out, err = p.communicate()
         if err:
-            self.logger('An error occurred when running command %s. Error: %s' % (cmd, err))
+            self.logger(
+                '''An error occurred when running command %s.
+                 Error: %s''' % (cmd, err)
+            )
         return out
 
     def run_autopkg(self):
@@ -135,7 +158,7 @@ class AutoPkgNotify(object):
                 new_downloads_dict['app'] = app
 
                 for dct in new_packages:
-                    if app.lower() in dct.get('pkg_path').lower() and dct.has_key('version'):
+                    if app.lower() in dct.get('pkg_path').lower() and 'version' in dct:
                         version = dct.get('version')
                         new_downloads_dict['version'] = version
                     else:
@@ -143,7 +166,10 @@ class AutoPkgNotify(object):
 
                 new_downloads_array.append(new_downloads_dict)
 
-            self.logger('New software was downloaded. Sending an alert to %s.' % self.smtp_to)
+            self.logger(
+                '''New software was downloaded. Sending
+                 an alert to %s.''' % self.smtp_to
+            )
             self.send_email(new_downloads_array)
         else:
             self.logger('Nothing new was downloaded.')
