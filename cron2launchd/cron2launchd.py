@@ -167,7 +167,7 @@ def main(argv=None):
 
     plist['Label'] = item_label
     if options.ignorespaces:
-        plist['ProgramArguments'] = item.command.command
+        plist['Program'] = item.command.command
     else:
         plist['ProgramArguments'] = item.command.command.split(' ')
     if options.workingdir:

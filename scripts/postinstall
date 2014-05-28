@@ -58,14 +58,7 @@ def main():
     launchd_values = plistlib.readPlist(AUTOPKG_NOTIFY_LAUNCHD)
 
     # Populate the UserName key with the console user
-    if console_user is not 'root':
-        launchd_values['UserName'] = console_user
-    else:
-        print(
-            '''We appear to be running from the loginwindow.
-             Please reinstall while logged in as the user
-             which you\'d like to run autopkg as.'''
-        )
+    launchd_values['UserName'] = console_user
 
     # Write the updated key/values to the LaunchD
     plistlib.writePlist(launchd_values, AUTOPKG_NOTIFY_LAUNCHD)
