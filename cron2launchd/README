@@ -1,0 +1,39 @@
+cron2launchd.py
+.9 beta 1
+
+This script will take a crontab line as input and generate the basic plist for used with launchd
+Its primary feature is to expand cron's concise notation into an array start interval dictionaries used by launchd
+
+Usage:
+
+cron2launchd.py -c '*/40 9-16/2 2 5,6 * say "test"' -l com.example.launchd.label > myfile.plist
+
+
+questions for the early birds:
+what other launchd keys should this handle by default?
+
+Note that the crontab.py file needs to be in the same folder as this script, or put somewhere in your python path (ie /Library/Python/2.5/site-packages)
+
+Created by Preston Holmes on 2009-07-07.
+Copyright (c) 2009 Preston Holmes
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.

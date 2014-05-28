@@ -1,0 +1,89 @@
+#!/usr/bin/env python
+#
+# AutoPkgNotify - Email notifications for AutoPkg
+# Copyright 2014 James Barclay
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# This post-install script runs after AutoPkgNotify is installed.
+# It ensures that the UserName LaunchD key is populated with the
+# currently logged in user.
+
+from __future__ import print_function
+
+import os
+import plistlib
+import subprocess
+import sys
+
+
+# Constants
+AUTOPKG_NOTIFY_LAUNCHD = '/Library/LaunchDaemons/com.github.futureimperfect.autopkg-notify.plist'
+
+
+def get_console_user():
+    '''Returns the currently logged-in user as
+    a string, even if running as EUID root.'''
+    if os.geteuid() == 0:
+        console_user = subprocess.check_output(['/usr/bin/stat',
+                                                '-f%Su',
+                                                '/dev/console']).strip()
+    else:
+        import getpass
+        console_user = getpass.getuser()
+
+    return console_user
+
+
+def is_root():
+    '''Returns true if running as the root user.'''
+    if os.geteuid() == 0:
+        return True
+
+
+def main():
+    console_user = get_console_user()
+
+    # Read the LaunchD plist with plistlib
+    launchd_values = plistlib.readPlist(AUTOPKG_NOTIFY_LAUNCHD)
+
+    # Populate the UserName key with the console user
+    if console_user is not 'root':
+        launchd_values['UserName'] = console_user
+    else:
+        print(
+            '''We appear to be running from the loginwindow.
+             Please reinstall while logged in as the user
+             which you\'d like to run autopkg as.'''
+        )
+
+    # Write the updated key/values to the LaunchD
+    plistlib.writePlist(launchd_values, AUTOPKG_NOTIFY_LAUNCHD)
+
+    # Load the updated LaunchD
+    try:
+        subprocess.check_output(['/bin/launchctl',
+                                 'load',
+                                 '%s' % AUTOPKG_NOTIFY_LAUNCHD])
+    except subprocess.CalledProcessError, e:
+        print(
+            '''Encountered an error when loading %s with launchctl.
+             Error: %s.''' % (AUTOPKG_NOTIFY_LAUNCHD, e)
+        )
+
+
+if __name__ == '__main__':
+    if not is_root():
+        print('This script must run as root. Exiting now.')
+        sys.exit(1)
+    main()
