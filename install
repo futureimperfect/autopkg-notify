@@ -98,7 +98,7 @@ def main():
     else:
         print('%s does not exist. Exiting now.' % LAUNCHD_PATH)
 
-    bin_dir = os.path.abspath(os.path.join(os.getcwd, 'bin'))
+    bin_dir = os.path.abspath(os.path.join(os.getcwd(), 'bin'))
     print('Successfully built deployment package in %s.' % bin_dir)
 
 
