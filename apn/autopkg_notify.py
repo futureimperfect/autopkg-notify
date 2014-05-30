@@ -32,17 +32,16 @@ class AutoPkgNotify(object):
     Runs AutoPkg and sends email notifications
     when new versions of software are available.
     '''
-    def __init__(
-        self,
-        smtp_from,
-        smtp_to,
-        smtp_pass,
-        smtp_port,
-        smtp_server,
-        smtp_user,
-        smtp_tls,
-        recipe_list
-    ):
+    def __init__(self,
+                 smtp_from,
+                 smtp_to,
+                 smtp_pass,
+                 smtp_port,
+                 smtp_server,
+                 smtp_user,
+                 smtp_tls,
+                 recipe_list):
+
         self.smtp_from = smtp_from
         self.smtp_to = smtp_to
         self.smtp_pass = smtp_pass

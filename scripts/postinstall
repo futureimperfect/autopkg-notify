@@ -26,6 +26,8 @@ import plistlib
 import subprocess
 import sys
 
+from xml.parsers.expat import ExpatError
+
 
 # Constants
 AUTOPKG_NOTIFY_LAUNCHD = '/Library/LaunchDaemons/com.github.futureimperfect.autopkg-notify.plist'
@@ -54,14 +56,21 @@ def is_root():
 def main():
     console_user = get_console_user()
 
-    # Read the LaunchD plist with plistlib
-    launchd_values = plistlib.readPlist(AUTOPKG_NOTIFY_LAUNCHD)
+    try:
+        # Read the LaunchD plist with plistlib
+        launchd_values = plistlib.readPlist(AUTOPKG_NOTIFY_LAUNCHD)
 
-    # Populate the UserName key with the console user
-    launchd_values['UserName'] = console_user
+        # Populate the UserName key with the console user
+        launchd_values['UserName'] = console_user
 
-    # Write the updated key/values to the LaunchD
-    plistlib.writePlist(launchd_values, AUTOPKG_NOTIFY_LAUNCHD)
+        # Write the updated key/values to the LaunchD
+        plistlib.writePlist(launchd_values, AUTOPKG_NOTIFY_LAUNCHD)
+
+    except TypeError as e:
+        print('The object is of an unsupported type. Error: %s.' % e)
+
+    except ExpatError as e:
+        print('Error parsing XML in %s. Error: %s.' % (AUTOPKG_NOTIFY_LAUNCHD, e))
 
     # Load the updated LaunchD
     try:
