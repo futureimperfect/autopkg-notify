@@ -133,6 +133,12 @@ def main(argv=None):
         dest='workingdir',
         help='specify a directory to chdir(2) to before running the job'
     )
+    parser.add_option(
+        '-u',
+        '--username',
+        dest='username',
+        help='specify the user to run the job as'
+    )
     # parser options: metavar, default action: store
     parser.usage = '''
         Convert a cron command line to a LaunchD plist.
@@ -148,6 +154,11 @@ def main(argv=None):
         item_label = options.label
     else:
         item_label = 'make.me.unique'
+
+    if options.username:
+        username = options.username
+    else:
+        username = 'changeme'
 
     item = CronItem(line)
     calendar_array = []
@@ -166,6 +177,7 @@ def main(argv=None):
         calendar_array.append(dict(i))
 
     plist['Label'] = item_label
+    plist['UserName'] = username
     if options.ignorespaces:
         plist['Program'] = item.command.command
     else:
