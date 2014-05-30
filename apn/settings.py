@@ -38,7 +38,7 @@ LOG_FILE = os.path.join(LOG_DIR, 'autopkg-notify.log')
 WORKING_DIR = os.path.abspath('/Library/Application Support/autopkg-notify')
 
 # PATH TO AUTOPKG RECIPE LIST
-RECIPE_LIST = os.path.abspath(os.path.join(os.getcwd(), os.pardir, 'recipe_list'))
+RECIPE_LIST = os.path.join(WORKING_DIR, 'recipe_list')
 
 # SMTP PASSWORD SETTINGS
 # INCLUDE PLAIN TEXT PASSWORD IN p.txt IF AUTH IS REQUIRED

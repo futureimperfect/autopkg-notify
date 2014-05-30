@@ -88,8 +88,9 @@ fi
 # Change ownership
 $chown -Rv 0:0 "$TMP_PATH"
 
-# Make sure $SCRIPT is executable
+# Make sure scripts are executable
 $chmod a+x "$TMP_PATH/$INSTALL_PATH/apn/autopkg_notify.py"
+$chmod a+x "$TMP_PATH/$INSTALL_PATH/scripts/postinstall"
 
 # Clean up python bytecode files before building
 $find "$TMP_PATH/$INSTALL_PATH/" -name "*.pyc" -exec rm {} \;

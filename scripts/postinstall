@@ -70,7 +70,14 @@ def main():
         print('The object is of an unsupported type. Error: %s.' % e)
 
     except ExpatError as e:
-        print('Error parsing XML in %s. Error: %s.' % (AUTOPKG_NOTIFY_LAUNCHD, e))
+        print(
+            'Error parsing XML in %s. Error: %s.' % (AUTOPKG_NOTIFY_LAUNCHD, e)
+        )
+
+    except:
+        print(
+            'An error occurred when updating the UserName key. Error: %s.' % e
+        )
 
     # Load the updated LaunchD
     try:

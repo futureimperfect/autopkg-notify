@@ -155,11 +155,6 @@ def main(argv=None):
     else:
         item_label = 'make.me.unique'
 
-    if options.username:
-        username = options.username
-    else:
-        username = 'changeme'
-
     item = CronItem(line)
     calendar_array = []
     plist = {}
@@ -177,11 +172,12 @@ def main(argv=None):
         calendar_array.append(dict(i))
 
     plist['Label'] = item_label
-    plist['UserName'] = username
     if options.ignorespaces:
         plist['Program'] = item.command.command
     else:
         plist['ProgramArguments'] = item.command.command.split(' ')
+    if options.username:
+        plist['UserName'] = options.username
     if options.workingdir:
         plist['WorkingDirectory'] = options.workingdir
     if options.runatload:
