@@ -91,21 +91,25 @@ class AutoPkgNotify(object):
         msg.add_header('To', ', '.join(self.smtp_to))
         msg.add_header('Subject', subject)
 
-        # Send the message
-        mailer = smtplib.SMTP(self.smtp_server, int(self.smtp_port))
+        try:
+            # Send the message
+            mailer = smtplib.SMTP(self.smtp_server, int(self.smtp_port))
 
-        if self.smtp_tls:
-            mailer.starttls()
+            if self.smtp_tls:
+                mailer.starttls()
 
-        if self.smtp_user and self.smtp_pass:
-            mailer.login(self.smtp_user, self.smtp_pass)
+            if self.smtp_user and self.smtp_pass:
+                mailer.login(self.smtp_user, self.smtp_pass)
 
-        mailer.sendmail(
-            self.smtp_from,
-            [', '.join(self.smtp_to)],
-            msg.as_string()
-        )
-        mailer.close()
+            mailer.sendmail(
+                self.smtp_from,
+                [', '.join(self.smtp_to)],
+                msg.as_string()
+            )
+            mailer.close()
+
+        except smtplib.SMTPException as e:
+            self.logger('Unable to send email. Error: %s.' % e)
 
     def run_cmd(self, cmd, redirect_stdout=None):
         '''
