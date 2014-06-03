@@ -80,7 +80,7 @@ class AutoPkgNotify(object):
 
         subject = '''[AutoPkgNotify] The Following Software is Now Available
                    for Testing (%s)''' % ', '.join(apps)
-        message = '''The following software is now available for testing\n:
+        message = '''The following software is now available for testing:\n
                   %s''' % '\n'.join(d['app'] + ': ' + d['version'] for d in new_downloads_array)
 
         # Construct the message
@@ -88,7 +88,7 @@ class AutoPkgNotify(object):
         body = email.MIMEText.MIMEText(message)
         msg.attach(body)
         msg.add_header('From', self.smtp_from)
-        msg.add_header('To', ', '.join(self.smtp_to))
+        msg.add_header('To', self.smtp_to)
         msg.add_header('Subject', subject)
 
         try:
@@ -103,7 +103,7 @@ class AutoPkgNotify(object):
 
             mailer.sendmail(
                 self.smtp_from,
-                [', '.join(self.smtp_to)],
+                self.smtp_to.split(', '),
                 msg.as_string()
             )
             mailer.close()
