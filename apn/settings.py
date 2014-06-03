@@ -19,32 +19,29 @@
 
 import os
 
-#### SMTP CONFIG ####
-SMTP_FROM   = 'autopkg-notify@you.com'
-SMTP_TO     = ['me@me.com', 'you@you.com']
-SMTP_PORT   = 587
+# SMTP CONFIG
+SMTP_FROM = 'autopkg-notify@you.com'
+SMTP_TO = 'me@me.com, you@you.com'  # Separate multiple email addresses with a comma
+SMTP_PORT = 587
 SMTP_SERVER = 'smtp.gmail.com'
-SMTP_USER   = 'you@you.com' # Leave blank if auth isn't required, (e.g., '')
-SMTP_TLS    = True
+SMTP_USER = 'you@you.com'           # Leave blank if auth isn't required, (e.g., '')
+SMTP_TLS = True                     # Change to False if not required (case matters)
 
-#### LOG CONFIG ####
-LOG_DIR  = '/Users/Shared'
+# SCHEDULE - CRON STYLE
+AUTOPKG_SCHEDULE = '0 3 * * *'      # Will run AutoPkgNotify every day at 3AM
+
+# LOG CONFIG
+LOG_DIR = '/Users/Shared'
 LOG_FILE = os.path.join(LOG_DIR, 'autopkg-notify.log')
 
-#### AUTOPKG RECIPES TO RUN ####
-RECIPES_TO_RUN = (
-    'AdobeAir.jss',
-    'AdobeFlashPlayer.jss',
-    'AdobeReader.jss',
-    'Firefox.jss',
-    'GoogleEarth.jss',
-    'MSOffice2011Updates.jss',
-    'Skype.jss',
-    'TextWrangler.jss'
-)
+# PATH TO AUTOPKGNOTIFY
+WORKING_DIR = os.path.abspath('/Library/Application Support/autopkg-notify')
 
-#### SMTP PASSWORD SETTINGS ####
-#### INCLUDE PLAIN TEXT PASSWORD IN P.TXT IF AUTH IS REQUIRED ####
+# PATH TO AUTOPKG RECIPE LIST
+RECIPE_LIST = os.path.join(WORKING_DIR, 'recipe_list')
+
+# SMTP PASSWORD SETTINGS
+# INCLUDE PLAIN TEXT PASSWORD IN p.txt IF AUTH IS REQUIRED
 SMTP_PASS = None
 PW = '../p.txt'
 if os.path.isfile(PW):

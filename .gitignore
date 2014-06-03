@@ -5,4 +5,7 @@
 *.swn
 *~
 *.taskpaper
+*.plist
 p.txt
+recipe_list
+bin

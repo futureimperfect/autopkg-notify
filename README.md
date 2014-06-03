@@ -2,18 +2,18 @@
 
 AutoPkgNotify lets administrators run [AutoPkg][1] recipes on a schedule and notifies them when new versions of software are available. Here's a high-level overview of how it works.
 
-1. A LaunchDaemon triggers AutoPkgNotify to run on a schedule, (at 3am by default), which then invokes `autopkg`, running the recipes you specify in `settings.py`.
+1. A LaunchDaemon triggers AutoPkgNotify to run on a schedule, (at 3am by default), which then invokes `autopkg`, running the recipes you specify in a file named `recipe_list` in the root of the project folder.
 2. AutoPkgNotify sends an email to adminisitor(s), (configured in `settings.py`), when new versions of software are available for testing.
 3. The Administator tests the software prior to making available to her end users.
 4. If the administrator deems the software worthy of deploying to her end users, she does so.
 
 ## Setup
 
-1. Install `autopkg-notify.pkg` from the `bin/` directory.
-    > **NOTE** AutoPkgNotify assumes that the currently logged in user is the one that will be running the `autopkg` recipes.
-2. `cd /Library/Application\ Support/autopkg-notify/autopkg-notify && vi settings.py` (...or `emacs`, `nano`, whatever)
-3. Configure the `settings.py` file for your environment. This includes SMTP details for sending email and the recipes you'd like `autopkg-notify` to run for you.
-4. If using SMTP authentication, write the plain text password to the file called `p.txt` in `/Library/Application Support/autopkg-notify/p.txt`.
-5. That's it!
+1. Fill in the SMTP details and cron style schedule in `apn/settings.py`.
+2. Create a plain-text file named `recipe_list` in the root of the project folder with the AutoPkg recipes you'd like to run.
+3. If the SMTP server you're using for notifications requires authentication, create a plain-text file called `p.txt` in the root of the project folder with the SMTP password.
+4. Run the installer script to generate the LaunchD plist and deployment package: `sudo ./install`
+5. Install the custom deployment package located in the `bin/` directory.
+6. That's it!
 
 [1]: http://autopkg.github.io/autopkg/
