@@ -80,8 +80,8 @@ class AutoPkgNotify(object):
 
         subject = '''[AutoPkgNotify] The Following Software is Now Available
                    for Testing (%s)''' % ', '.join(apps)
-        message = '''The following software is now available for testing:\n
-                  %s''' % '\n'.join(d['app'] + ': ' + d['version'] for d in new_downloads_array)
+        message = 'The following software is now available for testing:\n\n' + \
+                  '%s\n' % '\n'.join(d['app'] + ': ' + d['version'] for d in new_downloads_array)
 
         # Construct the message
         msg = email.MIMEMultipart.MIMEMultipart()
@@ -164,6 +164,7 @@ class AutoPkgNotify(object):
                     if app.lower() in dct.get('pkg_path').lower() and 'version' in dct:
                         version = dct.get('version')
                         new_downloads_dict['version'] = version
+                        break
                     else:
                         new_downloads_dict['version'] = 'N/A'
 
