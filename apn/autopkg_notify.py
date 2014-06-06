@@ -164,6 +164,7 @@ class AutoPkgNotify(object):
                     if app.lower() in dct.get('pkg_path').lower() and 'version' in dct:
                         version = dct.get('version')
                         new_downloads_dict['version'] = version
+                        break
                     else:
                         new_downloads_dict['version'] = 'N/A'
 
