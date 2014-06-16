@@ -16,6 +16,11 @@
 # limitations under the License.
 #
 # This script builds a deployment package for AutoPkgNotify
+#
+# Return codes:
+# 1 = Not Authorized (use sudo)
+# 128 = recipe_list does not exist
+# 192 = Git is not installed
 
 declare -x awk="/usr/bin/awk"
 declare -x chmod="/bin/chmod"
@@ -37,7 +42,7 @@ declare -x LAUNCH_DAEMON_PATH="/Library/LaunchDaemons"
 declare -x COMMIT="$(cd "$RUN_DIRECTORY"; $git log | $awk '/commit/ { print substr($2,1,10);exit }')"
 declare -x TMP_PATH="/private/tmp/$PROJECT_NAME-$COMMIT-$$$RANDOM"
 declare -x BIN_DIR="$RUN_DIRECTORY/../bin"
-declare -x PACKAGE_ID="$PROJECT_DOMAIN.$PROJECT_NAME.$COMMIT"
+declare -x PACKAGE_ID="$PROJECT_NAME.$COMMIT"
 
 check_root () {
 if [ "$EUID" -ne 0 ]; then
@@ -51,6 +56,7 @@ if [[ ! -x "$git" ]]; then
     declare -x git="/usr/bin/git"
     if [[ ! -x "$git" ]]; then
         echo "This script requires git. Please install the Xcode command-line tools and try again."
+        exit 192
     fi
 fi
 }
@@ -71,8 +77,8 @@ fi
 if [[ -f "$RUN_DIRECTORY/../recipe_list" ]]; then
     $cp -vp "$RUN_DIRECTORY/../recipe_list" "$TMP_PATH/$INSTALL_PATH/"
 else
-    echo "You must create a file called recipe_list in the project directory with the AutoPkg recipes to run."
-    exit 1
+    echo "You must first create a file named recipe_list in the project directory with the AutoPkg recipes to run. Exiting now."
+    exit 128
 fi
 
 # Copy the files to the tmp locations
