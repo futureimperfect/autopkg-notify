@@ -7,6 +7,13 @@ AutoPkgNotify lets administrators run [AutoPkg][1] recipes on a schedule and not
 3. The Administator tests the software prior to making available to her end users.
 4. If the administrator deems the software worthy of deploying to her end users, she does so.
 
+## Prerequisites
+
+In order for AutoPkgNotify to be useful to you, you'll need to have the following prerequisites.
+
+1. A Mac with [AutoPkg][1] installed. This doesn't have to be the same machine you build the AutoPkgNotify installer package on.
+2. Git. The easiest way to get this is to either use [brew][2] or install the [Xcode Command Line Tools][3].
+
 ## Setup
 
 1. Fill in the SMTP details and cron style schedule in `apn/settings.py`.
@@ -17,3 +24,5 @@ AutoPkgNotify lets administrators run [AutoPkg][1] recipes on a schedule and not
 6. That's it!
 
 [1]: http://autopkg.github.io/autopkg/
+[2]: http://brew.sh/
+[3]: https://developer.apple.com/xcode/downloads/
