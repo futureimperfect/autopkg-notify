@@ -95,25 +95,26 @@ def main():
 
     if os.path.isfile(LAUNCHD_PATH):
         cmd = run_cmd(os.path.abspath(os.path.join(DEPLOYMENT_DIR, 'pkg_build.sh')))
+        returncode = cmd[1]
 
-        if cmd[1] == 0:
+        if returncode == 0:
             bin_dir = os.path.abspath(os.path.join(os.getcwd(), 'bin'))
             print('Successfully built deployment package in %s.' % bin_dir)
 
-        elif cmd[1] == 128:
+        elif returncode == 128:
             print('''You must first create a file called \'recipe_list\'
             in the root of the project directory with the AutoPkg
             recipes to run. Exiting now.''')
             sys.exit(128)
 
-        elif cmd[1] == 192:
+        elif returncode == 192:
             print('''This script requires Git. Please install the
             Xcode Command Line Tools and try again.''')
             sys.exit(192)
 
         else:
             print('Could not build a deployment package. Exiting now. Output: %s.' % cmd[0])
-            sys.exit(1)
+            sys.exit(returncode)
 
     else:
         print('%s does not exist. Exiting now.' % LAUNCHD_PATH)
