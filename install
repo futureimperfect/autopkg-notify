@@ -97,10 +97,11 @@ def main():
         run_cmd(os.path.abspath(os.path.join(DEPLOYMENT_DIR, 'pkg_build.sh')))
     else:
         print('%s does not exist. Exiting now.' % LAUNCHD_PATH)
+        sys.exit(1)
 
     bin_dir = os.path.abspath(os.path.join(os.getcwd(), 'bin'))
     print('Successfully built deployment package in %s.' % bin_dir)
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
