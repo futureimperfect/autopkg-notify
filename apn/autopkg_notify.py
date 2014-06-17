@@ -18,6 +18,7 @@
 from __future__ import print_function
 
 import email
+import locale
 import logging
 import os
 import plistlib
@@ -115,11 +116,12 @@ class AutoPkgNotify(object):
         '''
         Run a command.
         '''
+        default_locale = '.'.join(locale.getdefaultlocale())
         p = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            env={'LC_CTYPE': 'en_CA.UTF-8'}
+            env={'LC_CTYPE': default_locale}
         )
         out, err = p.communicate()
         if err:
