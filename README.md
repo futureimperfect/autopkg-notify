@@ -1,6 +1,11 @@
 # AutoPkgNotify
 
-AutoPkgNotify lets administrators run [AutoPkg][1] recipes on a schedule and notifies them when new versions of software are available. Here's a high-level overview of how it works.
+## IMPORTANTE!
+This project is no longer actively maintained, and is probably broken as of AutoPkg v0.5.0 due to changes in the `--report-plist` functionality. You should probably check out another project that I work on called [AutoPkgr][1], which provides similar functionality (and much more) in a convenient GUI wrapper.
+
+---
+
+AutoPkgNotify lets administrators run [AutoPkg][2] recipes on a schedule and notifies them when new versions of software are available. Here's a high-level overview of how it works.
 
 1. A LaunchDaemon triggers AutoPkgNotify to run on a schedule, (at 3am by default), which then invokes `autopkg`, running the recipes you specify in a file named `recipe_list` in the root of the project folder.
 2. AutoPkgNotify sends an email to adminisitor(s), (configured in `settings.py`), when new versions of software are available for testing.
@@ -11,8 +16,8 @@ AutoPkgNotify lets administrators run [AutoPkg][1] recipes on a schedule and not
 
 In order for AutoPkgNotify to be useful to you, you'll need to have the following prerequisites.
 
-1. A Mac with [AutoPkg][1] installed. This doesn't have to be the same machine you build the AutoPkgNotify installer package on.
-2. Git. The easiest way to get this is to either use [brew][2] or install the [Xcode Command Line Tools][3].
+1. A Mac with [AutoPkg][2] installed. This doesn't have to be the same machine you build the AutoPkgNotify installer package on.
+2. Git. The easiest way to get this is to either use [brew][3] or install the [Xcode Command Line Tools][4].
 
 ## Setup
 
@@ -23,6 +28,7 @@ In order for AutoPkgNotify to be useful to you, you'll need to have the followin
 5. Install the custom deployment package located in the `bin/` directory.
 6. That's it!
 
-[1]: http://autopkg.github.io/autopkg/
-[2]: http://brew.sh/
-[3]: https://developer.apple.com/xcode/downloads/
+[1]: https://github.com/lindegroup/autopkgr
+[2]: http://autopkg.github.io/autopkg/
+[3]: http://brew.sh/
+[4]: https://developer.apple.com/xcode/downloads/
